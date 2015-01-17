@@ -1,0 +1,52 @@
+<%= form_for(@person) do |f| %>
+  <% if @person.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@person.errors.count, "error") %> prohibited this person from being saved:</h2>
+
+      <ul>
+      <% @person.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field row form-group">
+        <%= f.fields_for :attachments, (f.object.attachments if f.object.attachments.exists?) || f.object.attachments.build do |a| %>
+          <div class="col-md-10">
+            <%= a.label :File, for: :file_attachment, class: 'col-md-2 control-label' %>
+            <div class="col-md-10">
+              <% if action_name == 'edit' || action_name == 'update' %>
+                <% if a.object.id %>
+                  <text><%= a.object.file.original_filename %></text> <%= link_to 'X', '#', class: 'remove' %><br>
+                  <%= a.hidden_field :_destroy, class: 'hidden_field' %>
+                <% else %>
+                  <text>No attached attachments</text>
+                <% end %>
+              <% else %>
+                <%= a.file_field :file_attachment, multiple: true, name: 'person[attachments_attributes][][file]', class: 'form-control multi' %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class='row form-group'>
+        <% if action_name == 'edit' || action_name == 'update' %>
+          <%= f.fields_for :attachments, f.object.attachments.build do |b| %>
+            <div class='col-md-2'>
+              <%= b.label 'Add attachments', for: :more_attachments %>
+            </div>
+            <div class='col-md-10'>
+              <%= b.file_field :more_attachments, multiple: true, name: "person[attachments_attributes][new][][file]", class: 'form-control multi' %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
